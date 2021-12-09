@@ -11,20 +11,20 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 public class TripDurationToAverageTripDuration implements WindowFunction<TripDuration, AverageTripDuration, Tuple2<String, String>, TimeWindow> {
-  @Override
-  public void apply(Tuple2<String, String> tuple, TimeWindow timeWindow, Iterable<TripDuration> iterable, Collector<AverageTripDuration> collector) {
-    if (Iterables.size(iterable) > 1) {
-      String location = Iterables.get(iterable, 0).pickupGeoHash;
-      String airportCode = Iterables.get(iterable, 0).airportCode;
+	@Override
+	public void apply(Tuple2<String, String> tuple, TimeWindow timeWindow, Iterable<TripDuration> iterable, Collector<AverageTripDuration> collector) {
+		if (Iterables.size(iterable) > 1) {
+			String location = Iterables.get(iterable, 0).pickupGeoHash;
+			String airportCode = Iterables.get(iterable, 0).airportCode;
 
-      long sumDuration = StreamSupport
-          .stream(iterable.spliterator(), false)
-          .mapToLong(trip -> trip.tripDuration)
-          .sum();
+			long sumDuration = StreamSupport
+					.stream(iterable.spliterator(), false)
+					.mapToLong(trip -> trip.tripDuration)
+					.sum();
 
-      double avgDuration = (double) sumDuration / Iterables.size(iterable);
+			double avgDuration = (double) sumDuration / Iterables.size(iterable);
 
-      collector.collect(new AverageTripDuration(location, airportCode, sumDuration, avgDuration, timeWindow.getEnd()));
-    }
-  }
+			collector.collect(new AverageTripDuration(location, airportCode, sumDuration, avgDuration, timeWindow.getEnd()));
+		}
+	}
 }

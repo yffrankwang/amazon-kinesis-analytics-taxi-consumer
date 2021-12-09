@@ -21,44 +21,44 @@ import org.slf4j.LoggerFactory;
 
 
 public class TripEvent extends Event {
-  public final long tripId;
-  public final double pickupLatitude;
-  public final double pickupLongitude;
-  public final double dropoffLatitude;
-  public final double dropoffLongitude;
-  public final double totalAmount;
-  public final Instant pickupDatetime;
-  public final Instant dropoffDatetime;
+	public final long tripId;
+	public final double pickupLatitude;
+	public final double pickupLongitude;
+	public final double dropoffLatitude;
+	public final double dropoffLongitude;
+	public final double totalAmount;
+	public final Instant pickupDatetime;
+	public final Instant dropoffDatetime;
 
-  private static final Logger LOG = LoggerFactory.getLogger(TripEvent.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TripEvent.class);
 
-  public TripEvent() {
-    tripId = 0;
-    pickupLatitude = 0;
-    pickupLongitude = 0;
-    dropoffLatitude = 0;
-    dropoffLongitude = 0;
-    totalAmount = 0;
-    pickupDatetime = Instant.EPOCH;
-    dropoffDatetime = Instant.EPOCH;
-  }
+	public TripEvent() {
+		tripId = 0;
+		pickupLatitude = 0;
+		pickupLongitude = 0;
+		dropoffLatitude = 0;
+		dropoffLongitude = 0;
+		totalAmount = 0;
+		pickupDatetime = Instant.EPOCH;
+		dropoffDatetime = Instant.EPOCH;
+	}
 
-  @Override
-  public long getTimestamp() {
-    return dropoffDatetime.toEpochMilli();
-  }
+	@Override
+	public long getTimestamp() {
+		return dropoffDatetime.toEpochMilli();
+	}
 
-  @Override
-  public String toString() {
-    return "TripEvent{" +
-            "tripId=" + tripId +
-            ", pickupLatitude=" + pickupLatitude +
-            ", pickupLongitude=" + pickupLongitude +
-            ", dropoffLatitude=" + dropoffLatitude +
-            ", dropoffLongitude=" + dropoffLongitude +
-            ", totalAmount=" + totalAmount +
-            ", pickupDatetime=" + pickupDatetime +
-            ", dropoffDatetime=" + dropoffDatetime +
-            '}';
-  }
+	@Override
+	public String toString() {
+		return "TripEvent{" +
+				"tripId=" + tripId +
+				", pickupLatitude=" + pickupLatitude +
+				", pickupLongitude=" + pickupLongitude +
+				", dropoffLatitude=" + dropoffLatitude +
+				", dropoffLongitude=" + dropoffLongitude +
+				", totalAmount=" + totalAmount +
+				", pickupDatetime=" + pickupDatetime +
+				", dropoffDatetime=" + dropoffDatetime +
+				'}';
+	}
 }
