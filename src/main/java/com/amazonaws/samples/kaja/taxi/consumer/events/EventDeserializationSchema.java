@@ -24,36 +24,35 @@ import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class EventDeserializationSchema extends AbstractDeserializationSchema<Event> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(EventDeserializationSchema.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EventDeserializationSchema.class);
 
-  @Override
-  public Event deserialize(byte[] bytes) {
-    try {
-      Event event = Event.parseEvent(bytes);
+	@Override
+	public Event deserialize(byte[] bytes) {
+		try {
+			Event event = Event.parseEvent(bytes);
 
-      if (event instanceof WatermarkEvent) {
-        LOG.debug("parsed WatermarkEvent: {}", ((WatermarkEvent) event).watermark);
-      }
+			if (event instanceof WatermarkEvent) {
+				LOG.debug("parsed WatermarkEvent: {}", ((WatermarkEvent)event).watermark);
+			}
 
-      return event;
-    } catch (Exception e) {
-      LOG.debug("cannot parse event '{}'", new String(bytes, StandardCharsets.UTF_8), e);
+			return event;
+		} catch (Exception e) {
+			LOG.debug("cannot parse event '{}'", new String(bytes, StandardCharsets.UTF_8), e);
 
-      return null;
-    }
-  }
+			return null;
+		}
+	}
 
-  @Override
-  public boolean isEndOfStream(Event event) {
-    return false;
-  }
+	@Override
+	public boolean isEndOfStream(Event event) {
+		return false;
+	}
 
-  @Override
-  public TypeInformation<Event> getProducedType() {
-    return TypeExtractor.getForClass(Event.class);
-  }
+	@Override
+	public TypeInformation<Event> getProducedType() {
+		return TypeExtractor.getForClass(Event.class);
+	}
 
 }

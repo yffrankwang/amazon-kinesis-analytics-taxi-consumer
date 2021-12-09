@@ -1,14 +1,15 @@
 package com.amazonaws.samples.kaja.taxi.consumer.operators;
 
-import com.amazonaws.samples.kaja.taxi.consumer.events.es.AverageTripDuration;
-import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripDuration;
-import com.google.common.collect.Iterables;
 import java.util.stream.StreamSupport;
-import org.apache.flink.api.java.tuple.Tuple;
+
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+
+import com.amazonaws.samples.kaja.taxi.consumer.events.es.AverageTripDuration;
+import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripDuration;
+import com.google.common.collect.Iterables;
 
 public class TripDurationToAverageTripDuration implements WindowFunction<TripDuration, AverageTripDuration, Tuple2<String, String>, TimeWindow> {
 	@Override

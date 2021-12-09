@@ -43,70 +43,61 @@ import vc.inreach.aws.request.AWSSigner;
 import vc.inreach.aws.request.AWSSigningRequestInterceptor;
 
 public class AmazonElasticsearchSink {
-  private static final String ES_SERVICE_NAME = "es";
+	private static final String ES_SERVICE_NAME = "es";
 
-  private static final int FLUSH_MAX_ACTIONS = 10_000;
-  private static final long FLUSH_INTERVAL_MILLIS = 1_000;
-  private static final int FLUSH_MAX_SIZE_MB = 1;
+	private static final int FLUSH_MAX_ACTIONS = 10_000;
+	private static final long FLUSH_INTERVAL_MILLIS = 1_000;
+	private static final int FLUSH_MAX_SIZE_MB = 1;
 
-  private static final Logger LOG = LoggerFactory.getLogger(AmazonElasticsearchSink.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AmazonElasticsearchSink.class);
 
-  public static <T> ElasticsearchSink<T> buildElasticsearchSink(String elasticsearchEndpoint, String region, String indexName, String type) {
-    final List<HttpHost> httpHosts = Arrays.asList(HttpHost.create(elasticsearchEndpoint));
-    final SerializableAWSSigningRequestInterceptor requestInterceptor = new SerializableAWSSigningRequestInterceptor(region);
+	public static <T> ElasticsearchSink<T> buildElasticsearchSink(String elasticsearchEndpoint, String region, String indexName, String type) {
+		final List<HttpHost> httpHosts = Arrays.asList(HttpHost.create(elasticsearchEndpoint));
+		final SerializableAWSSigningRequestInterceptor requestInterceptor = new SerializableAWSSigningRequestInterceptor(region);
 
-    ElasticsearchSink.Builder<T> esSinkBuilder = new ElasticsearchSink.Builder<>(
-        httpHosts,
-        new ElasticsearchSinkFunction<T>() {
-          public IndexRequest createIndexRequest(T element) {
-            return Requests.indexRequest()
-                .index(indexName)
-                .type(type)
-                .source(element.toString(), XContentType.JSON);
-          }
+		ElasticsearchSink.Builder<T> esSinkBuilder = new ElasticsearchSink.Builder<>(httpHosts, new ElasticsearchSinkFunction<T>() {
+			public IndexRequest createIndexRequest(T element) {
+				return Requests.indexRequest().index(indexName).type(type).source(element.toString(), XContentType.JSON);
+			}
 
-          @Override
-          public void process(T element, RuntimeContext ctx, RequestIndexer indexer) {
-            indexer.add(createIndexRequest(element));
-          }
-        }
-    );
+			@Override
+			public void process(T element, RuntimeContext ctx, RequestIndexer indexer) {
+				indexer.add(createIndexRequest(element));
+			}
+		});
 
-    esSinkBuilder.setBulkFlushMaxActions(FLUSH_MAX_ACTIONS);
-    esSinkBuilder.setBulkFlushInterval(FLUSH_INTERVAL_MILLIS);
-    esSinkBuilder.setBulkFlushMaxSizeMb(FLUSH_MAX_SIZE_MB);
-    esSinkBuilder.setBulkFlushBackoff(true);
+		esSinkBuilder.setBulkFlushMaxActions(FLUSH_MAX_ACTIONS);
+		esSinkBuilder.setBulkFlushInterval(FLUSH_INTERVAL_MILLIS);
+		esSinkBuilder.setBulkFlushMaxSizeMb(FLUSH_MAX_SIZE_MB);
+		esSinkBuilder.setBulkFlushBackoff(true);
 
-    esSinkBuilder.setRestClientFactory(
-        restClientBuilder -> restClientBuilder.setHttpClientConfigCallback(callback -> callback.addInterceptorLast(requestInterceptor))
-    );
+		esSinkBuilder.setRestClientFactory(
+			restClientBuilder -> restClientBuilder.setHttpClientConfigCallback(callback -> callback.addInterceptorLast(requestInterceptor)));
 
-    esSinkBuilder.setFailureHandler(new RetryRejectedExecutionFailureHandler());
+		esSinkBuilder.setFailureHandler(new RetryRejectedExecutionFailureHandler());
 
-    return esSinkBuilder.build();
-  }
+		return esSinkBuilder.build();
+	}
 
+	static class SerializableAWSSigningRequestInterceptor implements HttpRequestInterceptor, Serializable {
+		private final String region;
+		private transient AWSSigningRequestInterceptor requestInterceptor;
 
-  static class SerializableAWSSigningRequestInterceptor implements HttpRequestInterceptor, Serializable {
-    private final String region;
-    private transient AWSSigningRequestInterceptor requestInterceptor;
+		public SerializableAWSSigningRequestInterceptor(String region) {
+			this.region = region;
+		}
 
-    public SerializableAWSSigningRequestInterceptor(String region) {
-      this.region = region;
-    }
+		@Override
+		public void process(HttpRequest httpRequest, HttpContext httpContext) throws HttpException, IOException {
+			if (requestInterceptor == null) {
+				final Supplier<LocalDateTime> clock = () -> LocalDateTime.now(ZoneOffset.UTC);
+				final AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
+				final AWSSigner awsSigner = new AWSSigner(credentialsProvider, region, ES_SERVICE_NAME, clock);
 
-    @Override
-    public void process(HttpRequest httpRequest, HttpContext httpContext) throws HttpException, IOException {
-      if (requestInterceptor == null) {
-        final Supplier<LocalDateTime> clock = () -> LocalDateTime.now(ZoneOffset.UTC);
-        final AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
-        final AWSSigner awsSigner = new AWSSigner(credentialsProvider, region, ES_SERVICE_NAME, clock);
+				requestInterceptor = new AWSSigningRequestInterceptor(awsSigner);
+			}
 
-        requestInterceptor = new AWSSigningRequestInterceptor(awsSigner);
-      }
-
-      requestInterceptor.process(httpRequest, httpContext);
-    }
-  }
+			requestInterceptor.process(httpRequest, httpContext);
+		}
+	}
 }
-

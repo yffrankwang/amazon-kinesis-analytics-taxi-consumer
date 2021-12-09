@@ -15,16 +15,15 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 
-
 public class PickupCount extends Document {
-  public final String location;
-  public final long pickupCount;
+	public final String location;
+	public final long pickupCount;
 
-  public PickupCount(String location, long pickupCount, long timestamp) {
-    super(timestamp);
+	public PickupCount(String location, long pickupCount, long timestamp) {
+		super(timestamp);
 
-    this.pickupCount = pickupCount;
-    this.location = location;
-  }
+		this.pickupCount = pickupCount;
+		this.location = location;
+	}
 
 }
