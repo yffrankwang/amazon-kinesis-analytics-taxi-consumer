@@ -106,34 +106,19 @@ Resources:
     Type: AWS::OpenSearchService::Domain
     Properties:
       AccessPolicies:
-        !Sub |
-          {
-            "Version": "2012-10-17",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Principal": {
-                  "AWS": "*"
-                },
-                "Action": [
-                  "es:ESHttpGet",
-                  "es:ESHttpPut",
-                  "es:ESHttpPost",
-                  "es:ESHttpHead",
-                  "es:ESHttpDelete"
-                ],
-                "Resource": "*",
-                "Condition": {
-                  "IpAddress": {
-                    "aws:SourceIp": [
-                      "${ClientIpAddressRange}",
-                      "${KinesisReplayInstanceIp}"
-                    ]
-                  }
-                }
-              }
-            ]
-          }
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS: '*'
+          Action:
+          - 'es:*'
+          Resource: '*'
+          Condition:
+            IpAddress:
+              'aws:SourceIp':
+              - !Sub '${ClientIpAddressRange}'
+              - !Sub '${KinesisReplayInstanceIp}'
       ClusterConfig:
         InstanceCount: 1
         InstanceType: t3.medium.search
