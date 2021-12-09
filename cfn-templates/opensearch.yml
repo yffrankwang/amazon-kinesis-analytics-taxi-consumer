@@ -42,7 +42,7 @@ Resources:
         EBSEnabled: true
         VolumeSize: 100
         VolumeType: gp2
-      EngineVersion: OpenSearch_1.0
+      EngineVersion: Elasticsearch_6.4
 
 
 
