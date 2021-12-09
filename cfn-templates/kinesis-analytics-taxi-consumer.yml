@@ -15,6 +15,7 @@ Parameters:
     MaxLength: 18
     MinLength: 9
     Type: String
+    Default: 0.0.0.0/0
 
 
 Outputs:
@@ -39,32 +40,32 @@ Resources:
   KinesisReplayBuildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/aws-bigdata-blog/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-replay-build-pipeline.yml
+      TemplateURL: https://s3.amazonaws.com/yfw-useast1/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-replay-build-pipeline.yml
       Parameters:
         ExternalArtifactBucket: !Ref ArtifactBucket
-        Release: release-0.1.1
+        Release: release-0.3.0
 
   TaxiConsumerBuildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/aws-bigdata-blog/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-analytics-taxi-consumer-build-pipeline.yml
+      TemplateURL: https://s3.amazonaws.com/yfw-useast1/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-analytics-taxi-consumer-build-pipeline.yml
       Parameters:
         ArtifactBucket: !Ref ArtifactBucket
-        Release: release-0.2.1
-        FlinkApplicationS3Path: amazon-kinesis-analytics-taxi-consumer-0.2.1.jar
+        Release: release-0.3.0
+        FlinkApplicationS3Path: amazon-kinesis-analytics-taxi-consumer-0.3.0.jar
 
 
   TaxiConsumerInfrastructure:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/aws-bigdata-blog/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-analytics-taxi-consumer-infrastructure.yml
+      TemplateURL: https://s3.amazonaws.com/yfw-useast1/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-analytics-taxi-consumer-infrastructure.yml
       Parameters:
         KinesisReplayCopyCommand: !GetAtt KinesisReplayBuildStack.Outputs.KinesisReplayCopyCommand
         FlinkApplicationS3BucketArn: !GetAtt ArtifactBucket.Arn
         FlinkApplicationS3Path: !GetAtt TaxiConsumerBuildStack.Outputs.FlinkApplicationS3Path
         SshKeyName: !Ref SshKeyName
         ClientIpAddressRange: !Ref ClientIpAddressRange
-        Release: release-0.2.2
+        Release: release-0.3.0
 
   ArtifactBucket:
     Type: AWS::S3::Bucket

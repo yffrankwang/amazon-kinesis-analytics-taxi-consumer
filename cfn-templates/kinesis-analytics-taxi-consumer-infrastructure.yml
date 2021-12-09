@@ -58,7 +58,7 @@ Resources:
   KinesisAnalyticsFlinkApplication:
     Type: AWS::KinesisAnalyticsV2::Application
     Properties: 
-      RuntimeEnvironment: FLINK-1_11
+      RuntimeEnvironment: FLINK-1_13
       ServiceExecutionRole: !Sub ${KinesisAnalyticsServiceRole.Arn}
       ApplicationConfiguration:
         ApplicationCodeConfiguration:
@@ -103,7 +103,7 @@ Resources:
 
 
   ElasticsearchService:
-    Type: AWS::Elasticsearch::Domain
+    Type: AWS::OpenSearchService::Domain
     Properties:
       AccessPolicies:
         !Sub |
@@ -134,14 +134,14 @@ Resources:
               }
             ]
           }
-      ElasticsearchClusterConfig:
+      ClusterConfig:
         InstanceCount: 1
-        InstanceType: m4.large.elasticsearch
+        InstanceType: t3.medium.search
       EBSOptions:
         EBSEnabled: true
-        VolumeSize: 20
+        VolumeSize: 100
         VolumeType: gp2
-      ElasticsearchVersion: 7.10
+      EngineVersion: OpenSearch_1.0
 
 
   FlinkNotProcessingFromKinesisAlarm:
@@ -307,7 +307,7 @@ Resources:
         - !Ref AWS::Region
         - HVM64
       Monitoring: true
-      InstanceType: c5.xlarge
+      InstanceType: t3.small
       IamInstanceProfile: !Ref KinesisReplayInstanceProfile
       KeyName: !Ref SshKeyName
       NetworkInterfaces:
@@ -337,11 +337,11 @@ Resources:
             aws --region ${AWS::Region} cloudformation wait stack-create-complete --stack-name '${AWS::StackName}'
 
             # create ES indices
-            curl -s https://raw.githubusercontent.com/aws-samples/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/trip-duration-index.json | curl -s -w "\n" -XPUT https://${ElasticsearchService.DomainEndpoint}/trip_duration -H "Content-Type: application/json" -d @-
-            curl -s https://raw.githubusercontent.com/aws-samples/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/pickup-count-index.json | curl -s -w "\n" -XPUT https://${ElasticsearchService.DomainEndpoint}/pickup_count -H "Content-Type: application/json" -d @-
+            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/trip-duration-index.json | curl -s -w "\n" -XPUT https://${ElasticsearchService.DomainEndpoint}/trip_duration -H "Content-Type: application/json" -d @-
+            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/pickup-count-index.json | curl -s -w "\n" -XPUT https://${ElasticsearchService.DomainEndpoint}/pickup_count -H "Content-Type: application/json" -d @-
 
             # create Kinaba visualizations and dashboard
-            curl -s https://raw.githubusercontent.com/aws-samples/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/nyc-tlc-dashboard.json | curl -s -w "\n" -XPOST https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/saved_objects/_bulk_create -H 'Content-Type: application/json' -H 'kbn-xsrf: true' -d @-
+            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/nyc-tlc-dashboard.json | curl -s -w "\n" -XPOST https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/saved_objects/_bulk_create -H 'Content-Type: application/json' -H 'kbn-xsrf: true' -d @-
 
             # set default Kibana index pattern
             curl -s -w "\n" -XPOST 'https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/kibana/settings' -H 'content-type: application/json' -H 'kbn-xsrf: true' --data '{"changes":{"defaultIndex":"trip-duration-index-pattern"}}'
