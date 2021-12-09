@@ -193,7 +193,7 @@ Resources:
           def handler(event, context):
             s3 = boto3.client('s3')
 
-            taxi_consumer_source = urlopen('https://github.com/aws-samples/amazon-kinesis-analytics-taxi-consumer/archive/${Release}.zip')
+            taxi_consumer_source = urlopen('https://github.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/archive/${Release}.zip')
             s3.put_object(Bucket='${ArtifactBucket}',Key='sources/amazon-kinesis-analytics-taxi-consumer.zip',Body=taxi_consumer_source.read())
 
             cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
