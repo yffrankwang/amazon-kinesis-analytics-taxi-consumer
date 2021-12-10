@@ -1,20 +1,22 @@
 {
-    "mappings": {
-        "properties": {
-            "airport_code": {
-                "type": "keyword"
-            },
-            "location": {
-                "fields": {
-                    "raw": {
-                        "type": "keyword"
-                    }
-                },
-                "type": "geo_point"
-            },
-            "timestamp": {
-                "type": "date"
-            }
-        }
-    }
+	"mappings": {
+		"_doc": {
+			"properties": {
+				"airport_code": {
+					"type": "keyword"
+				},
+				"location": {
+					"fields": {
+						"raw": {
+							"type": "keyword"
+						}
+					},
+					"type": "geo_point"
+				},
+				"timestamp": {
+					"type": "date"
+				}
+			}
+		}
+	}
 }

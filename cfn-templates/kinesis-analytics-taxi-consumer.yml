@@ -15,7 +15,6 @@ Parameters:
     MaxLength: 18
     MinLength: 9
     Type: String
-    Default: 0.0.0.0/0
 
 
 Outputs:

@@ -1,15 +1,17 @@
 {
-    "mappings": {
-        "properties": {
-            "location": {
-                "type": "geo_point"
-            },
-            "pickup_count": {
-                "type": "long"
-            },
-            "timestamp": {
-                "type": "date"
-            }
-        }
-    }
+	"mappings": {
+		"_doc": {
+			"properties": {
+				"location": {
+					"type": "geo_point"
+				},
+				"pickup_count": {
+					"type": "long"
+				},
+				"timestamp": {
+					"type": "date"
+				}
+			}
+		}
+	}
 }
