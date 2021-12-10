@@ -15,17 +15,28 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 
-public class PickupCount extends Document {
-	public final String location;
-	public final String geohash;
-	public final long pickupCount;
+public class TripDocument extends Document {
+	public String location;
+	public String geohash;
+	public String hotspot;
+	public long pickupCount;
+	public long sumTripDuration;
+	public long avgTripDuration;
+	public long sumTripDistance;
+	public long avgTripDistance;
+	public double avgTripSpeed;
 
-	public PickupCount(String location, String geohash, long pickupCount, long timestamp) {
+	public TripDocument(long timestamp) {
 		super(timestamp);
 
-		this.pickupCount = pickupCount;
-		this.location = location;
-		this.geohash = geohash;
+		this.location = "";
+		this.geohash = "";
+		this.hotspot = "";
+		this.pickupCount = 0;
+		this.avgTripDuration = 0;
+		this.sumTripDuration = 0;
+		this.avgTripDistance = 0;
+		this.sumTripDistance = 0;
+		this.avgTripSpeed = 0;
 	}
-
 }

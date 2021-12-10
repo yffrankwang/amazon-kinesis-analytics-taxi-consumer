@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -36,16 +35,13 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.samples.kaja.taxi.consumer.events.EventDeserializationSchema;
 import com.amazonaws.samples.kaja.taxi.consumer.events.TimestampAssigner;
-import com.amazonaws.samples.kaja.taxi.consumer.events.es.AverageTripDuration;
-import com.amazonaws.samples.kaja.taxi.consumer.events.es.PickupCount;
-import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripDuration;
+import com.amazonaws.samples.kaja.taxi.consumer.events.es.TripDocument;
+import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripData;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.AmazonElasticsearchSink;
-import com.amazonaws.samples.kaja.taxi.consumer.operators.CountByGeoHash;
-import com.amazonaws.samples.kaja.taxi.consumer.operators.TripDurationToAverageTripDuration;
-import com.amazonaws.samples.kaja.taxi.consumer.operators.TripToGeoHash;
-import com.amazonaws.samples.kaja.taxi.consumer.operators.TripToTripDuration;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.CalcByGeoHash;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.TripEventToTripData;
 import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
 import com.amazonaws.samples.kaja.taxi.consumer.utils.ParameterToolUtils;
 import com.amazonaws.services.kinesisanalytics.runtime.KinesisAnalyticsRuntime;
@@ -106,7 +102,7 @@ public class ProcessTaxiStream {
 		));
 
 
-		DataStream<TripEvent> trips = kinesisStream
+		DataStream<TripEvent> tripEvents = kinesisStream
 				//extract watermarks from watermark events
 				.assignTimestampsAndWatermarks(new AssignerWithPunctuatedWatermarksAdapter.Strategy<>(new TimestampAssigner()))
 				//remove all events that aren't TripEvents
@@ -117,27 +113,22 @@ public class ProcessTaxiStream {
 				.filter(GeoUtils::hasValidCoordinates);
 
 
-		DataStream<PickupCount> pickupCounts = trips
+		DataStream<TripDocument> tripDocs = tripEvents
 				//compute geo hash for every event
-				.map(new TripToGeoHash())
-				.keyBy(item -> item.geoHash)
-				//collect all events in a one hour window
-				.timeWindow(Time.hours(1))
-				//count events per geo hash in the one hour window
-				.apply(new CountByGeoHash());
+				.map(new TripEventToTripData())
+				.keyBy(new KeySelector<TripData, String>() {
+					private static final long serialVersionUID = 1L;
 
-
-		DataStream<AverageTripDuration> tripDurations = trips
-				.flatMap(new TripToTripDuration())
-				.keyBy(new KeySelector<TripDuration, Tuple2<String, String>>() {
 					@Override
-					public Tuple2<String, String> getKey(TripDuration item) throws Exception {
-						return Tuple2.of(item.pickupGeoHash, item.airportCode);
+					public String getKey(TripData value) throws Exception {
+						return value.geohash;
 					}
+					
 				})
-				.timeWindow(Time.hours(1))
-				.apply(new TripDurationToAverageTripDuration());
-
+				//collect all events in 10 minutes window
+				.timeWindow(Time.minutes(10))
+				//count events per geo hash in the one hour window
+				.apply(new CalcByGeoHash());
 
 		if (parameter.has("ElasticsearchEndpoint")) {
 			String elasticsearchEndpoint = parameter.get("ElasticsearchEndpoint");
@@ -148,10 +139,8 @@ public class ProcessTaxiStream {
 				elasticsearchEndpoint = elasticsearchEndpoint.substring(0, elasticsearchEndpoint.length()-1);
 			}
 
-			pickupCounts.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, "pickup_count", "_doc"));
-			tripDurations.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, "trip_duration", "_doc"));
+			tripDocs.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, "trip", "_doc"));
 		}
-
 
 		LOG.info("Reading events from stream {}", parameter.get("InputStreamName", DEFAULT_STREAM_NAME));
 

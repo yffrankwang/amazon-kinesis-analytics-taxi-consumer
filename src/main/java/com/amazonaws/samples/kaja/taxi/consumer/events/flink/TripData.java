@@ -13,23 +13,20 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.samples.kaja.taxi.consumer.events.es;
+package com.amazonaws.samples.kaja.taxi.consumer.events.flink;
 
-public class AverageTripDuration extends Document {
+public class TripData {
 	public final String location;
 	public final String geohash;
-	public final String airportCode;
-	public final long sumTripDuration;
-	public final double avgTripDuration;
+	public final String hotspot;
+	public final long tripDuration;
+	public final long tripDistance;
 
-	public AverageTripDuration(String location, String geohash, String airportCode, long sumTripDuration, double avgTripDuration, long timestamp) {
-		super(timestamp);
-
+	public TripData(String location, String geohash, String hotspot, long tripDuration, long tripDistance) {
 		this.location = location;
 		this.geohash = geohash;
-		this.airportCode = airportCode;
-		this.avgTripDuration = avgTripDuration;
-		this.sumTripDuration = sumTripDuration;
+		this.hotspot = hotspot;
+		this.tripDuration = tripDuration;
+		this.tripDistance = tripDistance;
 	}
-
 }

@@ -15,14 +15,15 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.events;
 
-import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
-import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.WatermarkEvent;
 import java.nio.charset.StandardCharsets;
+
 import org.apache.flink.api.common.serialization.AbstractDeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
 
 public class EventDeserializationSchema extends AbstractDeserializationSchema<Event> {
 
@@ -34,10 +35,6 @@ public class EventDeserializationSchema extends AbstractDeserializationSchema<Ev
 	public Event deserialize(byte[] bytes) {
 		try {
 			Event event = Event.parseEvent(bytes);
-
-			if (event instanceof WatermarkEvent) {
-				LOG.debug("parsed WatermarkEvent: {}", ((WatermarkEvent)event).watermark);
-			}
 
 			return event;
 		} catch (Exception e) {
