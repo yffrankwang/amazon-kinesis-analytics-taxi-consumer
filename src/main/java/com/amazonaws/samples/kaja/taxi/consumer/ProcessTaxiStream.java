@@ -15,18 +15,6 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.samples.kaja.taxi.consumer.events.EventDeserializationSchema;
-import com.amazonaws.samples.kaja.taxi.consumer.events.TimestampAssigner;
-import com.amazonaws.samples.kaja.taxi.consumer.events.es.AverageTripDuration;
-import com.amazonaws.samples.kaja.taxi.consumer.events.es.PickupCount;
-import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripDuration;
-import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
-import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
-import com.amazonaws.samples.kaja.taxi.consumer.operators.*;
-import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
-import com.amazonaws.samples.kaja.taxi.consumer.utils.ParameterToolUtils;
-import com.amazonaws.services.kinesisanalytics.runtime.KinesisAnalyticsRuntime;
 import java.util.Map;
 import java.util.Properties;
 
@@ -44,6 +32,23 @@ import org.apache.flink.streaming.connectors.kinesis.config.ConsumerConfigConsta
 import org.apache.flink.streaming.runtime.operators.util.AssignerWithPunctuatedWatermarksAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.amazonaws.regions.Regions;
+import com.amazonaws.samples.kaja.taxi.consumer.events.EventDeserializationSchema;
+import com.amazonaws.samples.kaja.taxi.consumer.events.TimestampAssigner;
+import com.amazonaws.samples.kaja.taxi.consumer.events.es.AverageTripDuration;
+import com.amazonaws.samples.kaja.taxi.consumer.events.es.PickupCount;
+import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripDuration;
+import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
+import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.AmazonElasticsearchSink;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.CountByGeoHash;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.TripDurationToAverageTripDuration;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.TripToGeoHash;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.TripToTripDuration;
+import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
+import com.amazonaws.samples.kaja.taxi.consumer.utils.ParameterToolUtils;
+import com.amazonaws.services.kinesisanalytics.runtime.KinesisAnalyticsRuntime;
 
 
 public class ProcessTaxiStream {

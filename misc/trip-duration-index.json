@@ -13,6 +13,14 @@
 					},
 					"type": "geo_point"
 				},
+				"geohash": {
+					"fields": {
+						"raw": {
+							"type": "keyword"
+						}
+					},
+					"type": "geo_point"
+				},
 				"timestamp": {
 					"type": "date"
 				}

@@ -16,13 +16,9 @@
 package com.amazonaws.samples.kaja.taxi.consumer.events.kinesis;
 
 import java.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WatermarkEvent extends Event {
 	public final Instant watermark;
-
-	private static final Logger LOG = LoggerFactory.getLogger(WatermarkEvent.class);
 
 	public WatermarkEvent() {
 		this.watermark = Instant.EPOCH;

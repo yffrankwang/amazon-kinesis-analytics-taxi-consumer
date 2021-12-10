@@ -16,8 +16,6 @@
 package com.amazonaws.samples.kaja.taxi.consumer.events.kinesis;
 
 import java.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class TripEvent extends Event {
@@ -29,8 +27,6 @@ public class TripEvent extends Event {
 	public final double totalAmount;
 	public final Instant pickupDatetime;
 	public final Instant dropoffDatetime;
-
-	private static final Logger LOG = LoggerFactory.getLogger(TripEvent.class);
 
 	public TripEvent() {
 		tripId = 0;
