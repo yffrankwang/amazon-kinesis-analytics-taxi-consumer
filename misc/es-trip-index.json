@@ -1,0 +1,35 @@
+{
+	"mappings": {
+		"_doc": {
+			"properties": {
+				"timestamp": {
+					"type": "date"
+				},
+				"location": {
+					"type": "geo_point"
+				},
+				"geohash": {
+					"type": "geo_point"
+				},
+				"pickup_count": {
+					"type": "long"
+				},
+				"sumTripDuration": {
+					"type": "long"
+				},
+				"avgTripDuration": {
+					"type": "long"
+				},
+				"sumTripDistance": {
+					"type": "long"
+				},
+				"avgTripDistance": {
+					"type": "long"
+				},
+				"avgTripSpeed": {
+					"type": "double"
+				}
+			}
+		}
+	}
+}

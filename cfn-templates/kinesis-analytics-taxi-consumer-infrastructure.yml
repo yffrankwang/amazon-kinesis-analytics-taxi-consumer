@@ -16,7 +16,7 @@ Parameters:
     MinLength: 9
     Type: String
 
-  FlinkApplicationS3BucketArn:
+  FlinkApplicationS3Bucket:
     Type: String
 
   FlinkApplicationS3Path:
@@ -64,17 +64,18 @@ Resources:
         ApplicationCodeConfiguration:
           CodeContent:
             S3ContentLocation:
-              BucketARN: !Ref FlinkApplicationS3BucketArn
+              BucketARN: !Sub arn:aws:s3:::${FlinkApplicationS3Bucket}
               FileKey: !Ref FlinkApplicationS3Path
           CodeContentType: ZIPFILE
         EnvironmentProperties:
           PropertyGroups:
             - PropertyGroupId: FlinkApplicationProperties
               PropertyMap:
-                ElasticsearchEndpoint: !Sub https://${ElasticsearchService.DomainEndpoint}
-                EventTime: true
                 InputStreamName: !Sub ${KinesisStream}
                 Region: !Sub ${AWS::Region}
+                EventTime: true
+                ElasticsearchEndpoint: !Sub https://${ElasticsearchService.DomainEndpoint}
+                S3SinkPath: !Sub s3a://${ElasticsearchService.DomainEndpoint}/output
         FlinkApplicationConfiguration:
           MonitoringConfiguration:
             ConfigurationType: CUSTOM
@@ -322,11 +323,10 @@ Resources:
             aws --region ${AWS::Region} cloudformation wait stack-create-complete --stack-name '${AWS::StackName}'
 
             # create ES indices
-            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/trip-duration-index.json | curl -s -w "\n" -XPUT https://${ElasticsearchService.DomainEndpoint}/trip_duration -H "Content-Type: application/json" -d @-
-            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/pickup-count-index.json | curl -s -w "\n" -XPUT https://${ElasticsearchService.DomainEndpoint}/pickup_count -H "Content-Type: application/json" -d @-
+            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/es-trip-index.json | curl -s -w "\n" -XPUT https://${ElasticsearchService.DomainEndpoint}/trip -H "Content-Type: application/json" -d @-
 
             # create Kinaba visualizations and dashboard
-            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/nyc-tlc-dashboard.json | curl -s -w "\n" -XPOST https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/saved_objects/_bulk_create -H 'Content-Type: application/json' -H 'kbn-xsrf: true' -d @-
+            curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/kibana-dashboard.json | curl -s -w "\n" -XPOST https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/saved_objects/_bulk_create -H 'Content-Type: application/json' -H 'kbn-xsrf: true' -d @-
 
             # set default Kibana index pattern
             curl -s -w "\n" -XPOST 'https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/kibana/settings' -H 'content-type: application/json' -H 'kbn-xsrf: true' --data '{"changes":{"defaultIndex":"trip-duration-index-pattern"}}'
@@ -336,6 +336,24 @@ Resources:
 
             # copy the replay Java app from s3
             su ec2-user -l -c "${KinesisReplayCopyCommand}"
+            
+            # install
+            amazon-linux-extras install -y nginx1
+
+            echo 'server {
+              listen 80;
+              listen [::]:80;
+              location /_plugin/ {
+                proxy_pass http://${ElasticsearchService.DomainEndpoint};
+                proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                proxy_set_header   X-Forwarded-Proto $scheme;
+                proxy_set_header   X-Forwarded-Port  $server_port;
+              }
+            }' | tee /etc/nginx/conf.d/es-proxy.conf
+
+            systemctl enable nginx
+            systemctl start nginx
+
 
 
   KinesisReplayInstanceSecurityGroup:
@@ -347,6 +365,10 @@ Resources:
         IpProtocol: tcp
         FromPort: 22
         ToPort: 22
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
 
   KinesisReplayInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -426,10 +448,10 @@ Resources:
                           "s3:ListBucket"
                       ],
                       "Resource": [
-                        "${FlinkApplicationS3BucketArn}",
-                        "arn:aws:s3:::aws-bigdata-blog",
-                        "${FlinkApplicationS3BucketArn}/*",
-                        "arn:aws:s3:::aws-bigdata-blog/*"
+                        "arn:aws:s3:::${FlinkApplicationS3Bucket}",
+                        "arn:aws:s3:::${FlinkApplicationS3Bucket}/*",
+                        "arn:aws:s3:::yfw-useast1",
+                        "arn:aws:s3:::yfw-useast1/*"
                       ]
                   }
                 ]
@@ -462,7 +484,7 @@ Resources:
                               "s3:*",
                           ],
                           "Resource": [
-                              "${FlinkApplicationS3BucketArn}/*"
+                              "arn:aws:s3:::${FlinkApplicationS3Bucket}/*"
                           ]
                       },
                       {

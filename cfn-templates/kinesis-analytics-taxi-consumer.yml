@@ -16,8 +16,26 @@ Parameters:
     MinLength: 9
     Type: String
 
+  ExternalArtifactBucket:
+    Description: Optional. S3 bucket that is used to store the compiled binaries and output files
+    Type: String
+
+  Release:
+    Description: Github branch or release to be used for the replay application
+    Type: String
+    Default: master
+
+
+Conditions:
+  UseInternalArtifactBucket:
+    !Equals [!Ref ExternalArtifactBucket, ""]
+
 
 Outputs:
+  ArtifactBucket:
+    Description: Bucket containing the generated jar file and output files
+    Value: !If [UseInternalArtifactBucket, !Ref InternalArtifactBucket, !Ref ExternalArtifactBucket]
+
   KinesisReplayInstance:
     Description: SSH connection to the instance that ingests trip events into the Kinesis stream
     Value: !GetAtt TaxiConsumerInfrastructure.Outputs.KinesisReplayInstance
@@ -36,23 +54,29 @@ Outputs:
 
 
 Resources:
+  InternalArtifactBucket:
+    Condition: UseInternalArtifactBucket
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+
   KinesisReplayBuildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/yfw-useast1/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-replay-build-pipeline.yml
       Parameters:
-        ExternalArtifactBucket: !Ref ArtifactBucket
-        Release: release-0.3.0
+        ExternalArtifactBucket: !If [UseInternalArtifactBucket, !Ref InternalArtifactBucket, !Ref ExternalArtifactBucket]
+        Release: !Ref Release
 
   TaxiConsumerBuildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/yfw-useast1/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-analytics-taxi-consumer-build-pipeline.yml
       Parameters:
-        ArtifactBucket: !Ref ArtifactBucket
-        Release: release-0.3.0
+        ArtifactBucket: !If [UseInternalArtifactBucket, !Ref InternalArtifactBucket, !Ref ExternalArtifactBucket]
         FlinkApplicationS3Path: amazon-kinesis-analytics-taxi-consumer-0.3.0.jar
-
+        Release: !Ref Release
 
   TaxiConsumerInfrastructure:
     Type: AWS::CloudFormation::Stack
@@ -60,15 +84,9 @@ Resources:
       TemplateURL: https://s3.amazonaws.com/yfw-useast1/artifacts/kinesis-analytics-taxi-consumer/cfn-templates/kinesis-analytics-taxi-consumer-infrastructure.yml
       Parameters:
         KinesisReplayCopyCommand: !GetAtt KinesisReplayBuildStack.Outputs.KinesisReplayCopyCommand
-        FlinkApplicationS3BucketArn: !GetAtt ArtifactBucket.Arn
+        FlinkApplicationS3Bucket: !If [UseInternalArtifactBucket, !Ref InternalArtifactBucket, !Ref ExternalArtifactBucket]
         FlinkApplicationS3Path: !GetAtt TaxiConsumerBuildStack.Outputs.FlinkApplicationS3Path
         SshKeyName: !Ref SshKeyName
         ClientIpAddressRange: !Ref ClientIpAddressRange
-        Release: release-0.3.0
-
-  ArtifactBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
+        Release: !Ref Release
 
