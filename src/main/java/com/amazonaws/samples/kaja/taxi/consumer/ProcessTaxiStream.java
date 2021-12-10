@@ -18,6 +18,7 @@ package com.amazonaws.samples.kaja.taxi.consumer;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -40,6 +41,7 @@ import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripData;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.AmazonElasticsearchSink;
+import com.amazonaws.samples.kaja.taxi.consumer.operators.AmazonS3FileSink;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.CalcByGeoHash;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.TripEventToTripData;
 import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
@@ -130,18 +132,22 @@ public class ProcessTaxiStream {
 				//count events per geo hash in the one hour window
 				.apply(new CalcByGeoHash());
 
-		if (parameter.has("ElasticsearchEndpoint")) {
-			String elasticsearchEndpoint = parameter.get("ElasticsearchEndpoint");
-			final String region = parameter.get("Region", DEFAULT_REGION_NAME);
+		String elasticsearchEndpoint = parameter.get("ElasticsearchEndpoint");
+		if (StringUtils.isNotEmpty(elasticsearchEndpoint)) {
+			String region = parameter.get("Region", DEFAULT_REGION_NAME);
 
 			//remove trailling /
-			if (elasticsearchEndpoint.endsWith(("/"))) {
-				elasticsearchEndpoint = elasticsearchEndpoint.substring(0, elasticsearchEndpoint.length()-1);
-			}
+			elasticsearchEndpoint = StringUtils.stripEnd(elasticsearchEndpoint, "/");
 
 			tripDocs.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, "trip", "_doc"));
 		}
 
+		String s3SinkPath = parameter.get("S3Bucket");
+		if (StringUtils.isNotEmpty(s3SinkPath)) {
+			// https://docs.aws.amazon.com/zh_cn/kinesisanalytics/latest/java/examples-s3.html
+			tripDocs.addSink(AmazonS3FileSink.buildS3FileSink(s3SinkPath));
+		}
+		
 		LOG.info("Reading events from stream {}", parameter.get("InputStreamName", DEFAULT_STREAM_NAME));
 
 		env.execute();

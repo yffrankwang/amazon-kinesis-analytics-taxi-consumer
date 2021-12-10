@@ -50,6 +50,7 @@ public class AmazonElasticsearchSink {
 	private static final long FLUSH_INTERVAL_MILLIS = 1_000;
 	private static final int FLUSH_MAX_SIZE_MB = 1;
 
+	@SuppressWarnings("serial")
 	public static <T> ElasticsearchSink<T> buildElasticsearchSink(String elasticsearchEndpoint, String region, String indexName, String type) {
 		final List<HttpHost> httpHosts = Arrays.asList(HttpHost.create(elasticsearchEndpoint));
 		final SerializableAWSSigningRequestInterceptor requestInterceptor = new SerializableAWSSigningRequestInterceptor(region);
