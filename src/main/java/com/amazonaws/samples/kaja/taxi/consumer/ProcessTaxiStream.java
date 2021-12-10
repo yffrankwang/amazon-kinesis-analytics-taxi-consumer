@@ -54,6 +54,7 @@ public class ProcessTaxiStream {
 
 	private static final String DEFAULT_STREAM_NAME = "streaming-analytics-workshop";
 	private static final String DEFAULT_REGION_NAME = Regions.getCurrentRegion()==null ? "us-east-1" : Regions.getCurrentRegion().getName();
+	private static final String DEFAULT_INDEX_NAME = "trip";
 
 	public static void main(String[] args) throws Exception {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -76,12 +77,8 @@ public class ProcessTaxiStream {
 			parameter = ParameterToolUtils.fromApplicationProperties(flinkProperties);
 		}
 
-
 		//enable event time processing
-		if (parameter.get("EventTime", "true").equals("true")) {
-			env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-		}
-
+		env.getConfig().setAutoWatermarkInterval(parameter.get("EventTime", "true").equals("true") ? 200 : 0);
 
 		//set Kinesis consumer properties
 		Properties kinesisConsumerConfig = new Properties();
@@ -135,15 +132,20 @@ public class ProcessTaxiStream {
 		String elasticsearchEndpoint = parameter.get("ElasticsearchEndpoint");
 		if (StringUtils.isNotEmpty(elasticsearchEndpoint)) {
 			String region = parameter.get("Region", DEFAULT_REGION_NAME);
+			String index = parameter.get("IndexName", DEFAULT_INDEX_NAME);
 
 			//remove trailling /
 			elasticsearchEndpoint = StringUtils.stripEnd(elasticsearchEndpoint, "/");
 
-			tripDocs.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, "trip", "_doc"));
+			LOG.info("Enable sink to elasticsearch: [{}] {}", index, elasticsearchEndpoint);
+
+			tripDocs.addSink(AmazonElasticsearchSink.buildElasticsearchSink(elasticsearchEndpoint, region, index, "_doc"));
 		}
 
-		String s3SinkPath = parameter.get("S3Bucket");
+		String s3SinkPath = parameter.get("S3SinkPath");
 		if (StringUtils.isNotEmpty(s3SinkPath)) {
+			LOG.info("Enable sink to s3: {}", s3SinkPath);
+
 			// https://docs.aws.amazon.com/zh_cn/kinesisanalytics/latest/java/examples-s3.html
 			tripDocs.addSink(AmazonS3FileSink.buildS3FileSink(s3SinkPath));
 		}
