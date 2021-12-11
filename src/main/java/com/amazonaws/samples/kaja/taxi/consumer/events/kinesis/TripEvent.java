@@ -326,7 +326,7 @@ public class TripEvent extends Event {
 			pickupLongitude = geo[1];
 		}
 		
-		if (dropoffLocationId > 0 && pickupLocationId <= LocationId2GeoPoints.length) {
+		if (dropoffLocationId > 0 && dropoffLocationId <= LocationId2GeoPoints.length) {
 			double[] geo = LocationId2GeoPoints[dropoffLocationId-1];
 			dropoffLatitude = geo[0];
 			dropoffLongitude = geo[1];
