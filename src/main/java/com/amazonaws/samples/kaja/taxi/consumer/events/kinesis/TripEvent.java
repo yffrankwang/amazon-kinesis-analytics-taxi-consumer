@@ -321,13 +321,13 @@ public class TripEvent extends Event {
 		}
 		
 		if (pickupLocationId > 0 && pickupLocationId <= LocationId2GeoPoints.length) {
-			double[] geo = LocationId2GeoPoints[pickupLocationId];
+			double[] geo = LocationId2GeoPoints[pickupLocationId-1];
 			pickupLatitude = geo[0];
 			pickupLongitude = geo[1];
 		}
 		
 		if (dropoffLocationId > 0 && pickupLocationId <= LocationId2GeoPoints.length) {
-			double[] geo = LocationId2GeoPoints[dropoffLocationId];
+			double[] geo = LocationId2GeoPoints[dropoffLocationId-1];
 			dropoffLatitude = geo[0];
 			dropoffLongitude = geo[1];
 		}
