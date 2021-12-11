@@ -19,37 +19,41 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 
 	@Override
 	public void apply(String key, TimeWindow timeWindow, Iterable<TripData> iterable, Collector<TripDocument> collector) throws Exception {
-		long count = Iterables.size(iterable);
-		if (count < 1) {
-			return;
-		}
-
-		TripData data = Iterables.get(iterable, 0);
-		TripDocument doc = new TripDocument(timeWindow.getEnd());
-
-		doc.geohash = data.geohash;
-		doc.location = data.location;
-		doc.hotspot = data.hotspot;
-
-		double sumTripSpeed = 0;
-
-		Iterator<TripData> it = iterable.iterator();
-		while (it.hasNext()) {
-			data = it.next();
-			doc.sumTripDistance += data.tripDistance;
-			doc.sumTripDuration = data.tripDuration;
-			if (data.tripDuration > 0) {
-				sumTripSpeed += (double)(data.tripDistance * 60 * 60) / data.tripDuration / 1000;
+		try {
+			long count = Iterables.size(iterable);
+			if (count < 1) {
+				return;
 			}
+
+			TripData data = Iterables.get(iterable, 0);
+			TripDocument doc = new TripDocument(timeWindow.getEnd());
+
+			doc.geohash = data.geohash;
+			doc.location = data.location;
+			doc.hotspot = data.hotspot;
+
+			double sumTripSpeed = 0;
+
+			Iterator<TripData> it = iterable.iterator();
+			while (it.hasNext()) {
+				data = it.next();
+				doc.sumTripDistance += data.tripDistance;
+				doc.sumTripDuration = data.tripDuration;
+				if (data.tripDuration > 0) {
+					sumTripSpeed += (double)(data.tripDistance * 60 * 60) / data.tripDuration / 1000;
+				}
+			}
+
+			doc.avgTripDuration = doc.sumTripDuration / count;
+			doc.avgTripDistance = doc.sumTripDistance / count;
+			doc.avgTripSpeed = sumTripSpeed / count;
+			doc.pickupCount = count;
+
+			collector.collect(doc);
+			
+			LOG.info("CalcByGeoHash collect {}: {}", count, doc.toString());
+		} catch (Exception e) {
+			LOG.error("CalcByGeoHash failed", e);
 		}
-
-		doc.avgTripDuration = doc.sumTripDuration / count;
-		doc.avgTripDistance = doc.sumTripDistance / count;
-		doc.avgTripSpeed = sumTripSpeed / count;
-		doc.pickupCount = count;
-
-		collector.collect(doc);
-		
-		LOG.debug("CalcByGeoHash collect {}: {}", count, doc.toString());
 	}
 }

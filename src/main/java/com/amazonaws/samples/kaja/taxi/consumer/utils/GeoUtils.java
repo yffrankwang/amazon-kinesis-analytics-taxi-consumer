@@ -35,12 +35,15 @@ public class GeoUtils {
 			WGS84Point pickup = new WGS84Point(trip.pickupLatitude, trip.pickupLongitude);
 			WGS84Point dropoff = new WGS84Point(trip.dropoffLatitude, trip.dropoffLongitude);
 
-			return NYC.contains(pickup) && NYC.contains(dropoff);
+			if (NYC.contains(pickup) && NYC.contains(dropoff)) {
+				return true;
+			}
+			LOG.info("skip non NYC location for event {}", trip);
 		} catch (IllegalArgumentException e) {
 			LOG.warn("cannot parse coordinates for event {}", trip, e);
-
-			return false;
 		}
+
+		return false;
 	}
 
 	public static boolean nearJFK(double latitude,

@@ -11,10 +11,7 @@ import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
 
 public class EventDeserializationSchemaTest {
 
-	@Test
-	public void testDeserialize() throws Exception {
-		String fin = "D:\\Develop\\Projects\\aws\\tlc\\data\\green_tripdata_2018-01.json";
-		
+	private void deserialize(String fin) throws Exception {
 		if (!(new File(fin).canRead())) {
 			return;
 		}
@@ -36,11 +33,23 @@ public class EventDeserializationSchemaTest {
 
 			TripEvent te = (TripEvent)evt;
 			if (!GeoUtils.hasValidCoordinates(te)) {
-				System.out.println(lineno + " - error geo: " + line);
+				if (errgeo % 10000 == 0) {
+					System.out.println(lineno + " - error geo: " + line);
+				}
 				errgeo++;
 			}
 		}
 		
 		System.out.println("geo error " + errgeo + " / " + lineno);
+	}
+	
+	@Test
+	public void testDeserializeGreen() throws Exception {
+		deserialize("D:\\Develop\\Projects\\aws\\tlc\\data\\green_tripdata_2018-01.csv.json1");
+	}
+	
+	@Test
+	public void testDeserializeYellow() throws Exception {
+		deserialize("D:\\Develop\\Projects\\aws\\tlc\\data\\yellow_tripdata_2018-01.csv.json");
 	}
 }
