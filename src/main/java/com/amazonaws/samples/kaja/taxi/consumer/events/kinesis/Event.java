@@ -37,20 +37,27 @@ public abstract class Event {
 		// parse the event payload and remove the type attribute
 		JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(event)));
 		JsonElement jsonElement = Streams.parse(jsonReader);
-		JsonElement labelJsonElement = jsonElement.getAsJsonObject().remove(TYPE_FIELD);
+		JsonElement dataType = jsonElement.getAsJsonObject().remove(TYPE_FIELD);
 
-		if (labelJsonElement == null) {
+		if (dataType == null) {
 			throw new IllegalArgumentException("Event does not define a type field: " + new String(event));
 		}
 
 		// convert json to POJO, based on the type attribute
-		switch (labelJsonElement.getAsString()) {
+		switch (dataType.getAsString()) {
 		case "watermark":
 			return gson.fromJson(jsonElement, WatermarkEvent.class);
 		case "trip":
-			return gson.fromJson(jsonElement, TripEvent.class);
+		case "yellow":
+		case "green":
+		case "fhv":
+		case "fhvhv":
+			jsonElement.getAsJsonObject().addProperty("taxi_type", dataType.getAsString());
+			TripEvent te = gson.fromJson(jsonElement, TripEvent.class);
+			te.normalize();
+			return te;
 		default:
-			throw new IllegalArgumentException("Found unsupported event type: " + labelJsonElement.getAsString());
+			throw new IllegalArgumentException("Found unsupported event type: " + dataType.getAsString());
 		}
 	}
 

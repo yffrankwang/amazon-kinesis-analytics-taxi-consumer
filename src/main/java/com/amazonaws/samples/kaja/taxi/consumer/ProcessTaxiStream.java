@@ -119,8 +119,8 @@ public class ProcessTaxiStream {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public String getKey(TripData value) throws Exception {
-						return value.geohash;
+					public String getKey(TripData td) throws Exception {
+						return td.taxiType + ":" + td.geohash;
 					}
 					
 				})

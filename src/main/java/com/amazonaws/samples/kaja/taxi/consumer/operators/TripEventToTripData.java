@@ -23,7 +23,7 @@ public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 		String geoHash = hash.toBase32();
 		String location = decfmt.format(hash.getPoint().getLatitude()) + "," + decfmt.format(hash.getPoint().getLatitude());
 
-		long tripDuration = Duration.between(te.pickupDatetime, te.dropoffDatetime).toMinutes();
+		long tripDuration = Duration.ofMillis(Math.abs(te.dropoffTime() - te.pickupTime())).toSeconds();
 		long tripDistance = distance(te.pickupLatitude, te.pickupLongitude, te.dropoffLatitude, te.dropoffLongitude);
 
 		String hotspot = "";
@@ -33,7 +33,7 @@ public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 			hotspot = "LGA";
 		}
 
-		return new TripData(location, geoHash, hotspot, tripDuration, tripDistance);
+		return new TripData(te.taxiType, location, geoHash, hotspot, tripDuration, tripDistance);
 	}
 
 	/**

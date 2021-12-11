@@ -16,19 +16,21 @@
 package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 
 public class TripDocument extends Document {
+	public String taxiType;
 	public String location;
 	public String geohash;
 	public String hotspot;
 	public long pickupCount;
-	public long sumTripDuration;
 	public long avgTripDuration;
-	public long sumTripDistance;
+	public long sumTripDuration;
 	public long avgTripDistance;
+	public long sumTripDistance;
 	public double avgTripSpeed;
 
 	public TripDocument(long timestamp) {
 		super(timestamp);
 
+		this.taxiType = "";
 		this.location = "";
 		this.geohash = "";
 		this.hotspot = "";

@@ -14,20 +14,26 @@
 				"pickup_count": {
 					"type": "long"
 				},
-				"sumTripDuration": {
+				"sum_trip_duration": {
 					"type": "long"
 				},
-				"avgTripDuration": {
+				"avg_trip_duration": {
 					"type": "long"
 				},
-				"sumTripDistance": {
+				"sum_trip_distance": {
 					"type": "long"
 				},
-				"avgTripDistance": {
+				"avg_trip_distance": {
 					"type": "long"
 				},
-				"avgTripSpeed": {
+				"avg_trip_speed": {
 					"type": "double"
+				},
+				"hotspot": {
+					"type": "keyword"
+				},
+				"taxi_type": {
+					"type": "keyword"
 				}
 			}
 		}

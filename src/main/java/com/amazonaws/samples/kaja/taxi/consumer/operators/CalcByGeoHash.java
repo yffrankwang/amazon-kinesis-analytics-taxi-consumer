@@ -35,7 +35,7 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 			doc.sumTripDistance += data.tripDistance;
 			doc.sumTripDuration = data.tripDuration;
 			if (data.tripDuration > 0) {
-				sumTripSpeed += (double)(data.tripDistance * 60) / data.tripDuration / 1000;
+				sumTripSpeed += (double)(data.tripDistance * 60 * 60) / data.tripDuration / 1000;
 			}
 		}
 
