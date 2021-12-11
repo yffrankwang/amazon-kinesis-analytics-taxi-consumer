@@ -15,12 +15,13 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.utils;
 
-import ch.hsr.geohash.BoundingBox;
-import ch.hsr.geohash.GeoHash;
-import ch.hsr.geohash.WGS84Point;
-import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
+
+import ch.hsr.geohash.BoundingBox;
+import ch.hsr.geohash.WGS84Point;
 
 public class GeoUtils {
 	private static final BoundingBox NYC = new BoundingBox(new WGS84Point(40.878, -74.054), new WGS84Point(40.560, -73.722));
@@ -29,11 +30,6 @@ public class GeoUtils {
 
 	private static final Logger LOG = LoggerFactory.getLogger(GeoUtils.class);
 
-	public static String geoHashToGeoPoint(String geohash) {
-		GeoHash gh = GeoHash.fromGeohashString(geohash);
-		return gh.getPoint().getLatitude() + "," + gh.getPoint().getLongitude();
-	}
-	
 	public static boolean hasValidCoordinates(TripEvent trip) {
 		try {
 			WGS84Point pickup = new WGS84Point(trip.pickupLatitude, trip.pickupLongitude);
@@ -41,7 +37,7 @@ public class GeoUtils {
 
 			return NYC.contains(pickup) && NYC.contains(dropoff);
 		} catch (IllegalArgumentException e) {
-			LOG.debug("cannot parse coordinates for event {}", trip, e);
+			LOG.warn("cannot parse coordinates for event {}", trip, e);
 
 			return false;
 		}

@@ -35,10 +35,10 @@ public class EventDeserializationSchema extends AbstractDeserializationSchema<Ev
 	public Event deserialize(byte[] bytes) {
 		try {
 			Event event = Event.parseEvent(bytes);
-
+		
 			return event;
 		} catch (Exception e) {
-			LOG.debug("cannot parse event '{}'", new String(bytes, StandardCharsets.UTF_8), e);
+			LOG.error("cannot parse event '{}'", new String(bytes, StandardCharsets.UTF_8), e);
 
 			return null;
 		}

@@ -124,9 +124,9 @@ public class ProcessTaxiStream {
 					}
 					
 				})
-				//collect all events in 10 minutes window
-				.timeWindow(Time.minutes(10))
-				//count events per geo hash in the one hour window
+				//collect all events in 5 minutes window
+				.timeWindow(Time.minutes(5))
+				//count events per geo hash in the time window
 				.apply(new CalcByGeoHash());
 
 		String elasticsearchEndpoint = parameter.get("ElasticsearchEndpoint");

@@ -3,6 +3,8 @@ package com.amazonaws.samples.kaja.taxi.consumer.events.kinesis;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
+
 public class EventTest {
 
 	@Test
@@ -14,7 +16,10 @@ public class EventTest {
 		Assert.assertTrue(evt instanceof TripEvent);
 		
 		TripEvent te = (TripEvent)evt;
+
 		Assert.assertEquals(te.taxiType, "green");
+		
+		Assert.assertTrue(GeoUtils.hasValidCoordinates(te));
 		
 		System.out.println(evt);
 	}

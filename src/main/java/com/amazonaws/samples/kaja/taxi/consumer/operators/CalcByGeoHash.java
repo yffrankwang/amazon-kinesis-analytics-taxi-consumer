@@ -5,6 +5,8 @@ import java.util.Iterator;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.samples.kaja.taxi.consumer.events.es.TripDocument;
 import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripData;
@@ -12,6 +14,8 @@ import com.google.common.collect.Iterables;
 
 public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, String, TimeWindow> {
 	private static final long serialVersionUID = 1;
+
+	private static final Logger LOG = LoggerFactory.getLogger(CalcByGeoHash.class);
 
 	@Override
 	public void apply(String key, TimeWindow timeWindow, Iterable<TripData> iterable, Collector<TripDocument> collector) throws Exception {
@@ -45,6 +49,7 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 		doc.pickupCount = count;
 
 		collector.collect(doc);
+		
+		LOG.debug("CalcByGeoHash collect {}: {}", count, doc.toString());
 	}
-
 }

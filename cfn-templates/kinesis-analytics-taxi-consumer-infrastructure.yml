@@ -75,7 +75,7 @@ Resources:
                 Region: !Sub ${AWS::Region}
                 EventTime: true
                 ElasticsearchEndpoint: !Sub https://${ElasticsearchService.DomainEndpoint}
-                S3SinkPath: !Sub s3a://${ElasticsearchService.DomainEndpoint}/output
+                S3SinkPath: !Sub s3a://${ElasticsearchService.DomainEndpoint}/kinesis-output
         FlinkApplicationConfiguration:
           MonitoringConfiguration:
             ConfigurationType: CUSTOM
