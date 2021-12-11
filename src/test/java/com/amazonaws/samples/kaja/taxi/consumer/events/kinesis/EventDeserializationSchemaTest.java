@@ -45,7 +45,7 @@ public class EventDeserializationSchemaTest {
 	
 	@Test
 	public void testDeserializeGreen() throws Exception {
-		deserialize("D:\\Develop\\Projects\\aws\\tlc\\data\\green_tripdata_2018-01.csv.json1");
+		deserialize("D:\\Develop\\Projects\\aws\\tlc\\data\\green_tripdata_2018-01.csv.json");
 	}
 	
 	@Test

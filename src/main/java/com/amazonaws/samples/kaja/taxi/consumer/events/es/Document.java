@@ -22,9 +22,9 @@ import com.google.gson.GsonBuilder;
 public abstract class Document {
 	private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
-	public final long timestamp;
+	public long timestamp;
 
-	public Document(long timestamp) {
+	protected Document(long timestamp) {
 		this.timestamp = timestamp;
 	}
 

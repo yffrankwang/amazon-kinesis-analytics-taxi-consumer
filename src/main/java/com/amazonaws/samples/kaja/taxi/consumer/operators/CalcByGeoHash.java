@@ -26,8 +26,9 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 			}
 
 			TripData data = Iterables.get(iterable, 0);
-			TripDocument doc = new TripDocument(timeWindow.getEnd());
+			TripDocument doc = new TripDocument();
 
+			doc.timestamp = timeWindow.getEnd();
 			doc.geohash = data.geohash;
 			doc.location = data.location;
 			doc.hotspot = data.hotspot;

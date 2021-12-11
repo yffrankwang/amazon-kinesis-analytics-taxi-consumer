@@ -122,7 +122,6 @@ public class ProcessTaxiStream {
 					public String getKey(TripData td) throws Exception {
 						return td.taxiType + ":" + td.geohash;
 					}
-					
 				})
 				//collect all events in 5 minutes window
 				.timeWindow(Time.minutes(5))

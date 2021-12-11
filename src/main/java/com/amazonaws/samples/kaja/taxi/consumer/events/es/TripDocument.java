@@ -27,8 +27,8 @@ public class TripDocument extends Document {
 	public long sumTripDistance;
 	public double avgTripSpeed;
 
-	public TripDocument(long timestamp) {
-		super(timestamp);
+	public TripDocument() {
+		super(0);
 
 		this.taxiType = "";
 		this.location = "";

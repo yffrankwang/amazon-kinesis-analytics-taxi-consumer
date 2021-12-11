@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 
 import org.apache.flink.api.common.functions.MapFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripData;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
@@ -16,24 +18,33 @@ public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 	
 	private static final DecimalFormat decfmt = new DecimalFormat("#.000000");
 
+	private static final Logger LOG = LoggerFactory.getLogger(TripEventToTripData.class);
+
 	@Override
 	public TripData map(TripEvent te) {
-		GeoHash hash = GeoHash.withCharacterPrecision(te.pickupLatitude, te.pickupLongitude, 6);
+		try {
+			LOG.debug("map TripEvent {}", te);
 
-		String geoHash = hash.toBase32();
-		String location = decfmt.format(hash.getPoint().getLatitude()) + "," + decfmt.format(hash.getPoint().getLatitude());
+			GeoHash hash = GeoHash.withCharacterPrecision(te.pickupLatitude, te.pickupLongitude, 6);
 
-		long tripDuration = Duration.ofMillis(Math.abs(te.dropoffTime() - te.pickupTime())).toSeconds();
-		long tripDistance = distance(te.pickupLatitude, te.pickupLongitude, te.dropoffLatitude, te.dropoffLongitude);
+			String geoHash = hash.toBase32();
+			String location = decfmt.format(hash.getPoint().getLatitude()) + "," + decfmt.format(hash.getPoint().getLatitude());
 
-		String hotspot = "";
-		if (GeoUtils.nearJFK(te.dropoffLatitude, te.dropoffLongitude)) {
-			hotspot = "JFK";
-		} else if (GeoUtils.nearLGA(te.dropoffLatitude, te.dropoffLongitude)) {
-			hotspot = "LGA";
+			long tripDuration = Duration.ofMillis(Math.abs(te.dropoffTime() - te.pickupTime())).toSeconds();
+			long tripDistance = distance(te.pickupLatitude, te.pickupLongitude, te.dropoffLatitude, te.dropoffLongitude);
+
+			String hotspot = "";
+			if (GeoUtils.nearJFK(te.dropoffLatitude, te.dropoffLongitude)) {
+				hotspot = "JFK";
+			} else if (GeoUtils.nearLGA(te.dropoffLatitude, te.dropoffLongitude)) {
+				hotspot = "LGA";
+			}
+
+			return new TripData(te.taxiType, location, geoHash, hotspot, tripDuration, tripDistance);
+		} catch (Exception e) {
+			LOG.error("map TripEvent failed", e);
+			return null;
 		}
-
-		return new TripData(te.taxiType, location, geoHash, hotspot, tripDuration, tripDistance);
 	}
 
 	/**
