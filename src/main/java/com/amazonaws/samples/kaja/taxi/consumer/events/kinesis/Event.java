@@ -18,6 +18,9 @@ package com.amazonaws.samples.kaja.taxi.consumer.events.kinesis;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
+import java.util.Date;
+
+import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -28,10 +31,22 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 
 public abstract class Event {
+	public final static FastDateFormat FMT = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+
 	private static final String TYPE_FIELD = "type";
 
 	private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-		.registerTypeAdapter(Instant.class, (JsonDeserializer<Instant>)(json, typeOfT, context) -> Instant.parse(json.getAsString())).create();
+		.registerTypeAdapter(Instant.class, (JsonDeserializer<Instant>)(json, typeOfT, context) -> Instant.parse(json.getAsString()))
+		.registerTypeAdapter(Date.class, (JsonDeserializer<Date>)(json, typeOfT, context) -> parseDate(json.getAsString()))
+		.create();
+
+	public static Date parseDate(String s) {
+		try {
+			return FMT.parse(s);
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 	public static Event parseEvent(byte[] event) {
 		// parse the event payload and remove the type attribute

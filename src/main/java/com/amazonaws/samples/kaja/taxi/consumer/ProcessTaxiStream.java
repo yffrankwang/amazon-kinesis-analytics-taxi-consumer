@@ -21,7 +21,6 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -41,11 +40,11 @@ import com.amazonaws.samples.kaja.taxi.consumer.events.es.TripDocument;
 import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripData;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
+import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEventValidator;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.AmazonElasticsearchSink;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.AmazonS3FileSink;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.CalcByGeoHash;
 import com.amazonaws.samples.kaja.taxi.consumer.operators.TripEventToTripData;
-import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
 import com.amazonaws.samples.kaja.taxi.consumer.utils.ParameterToolUtils;
 import com.amazonaws.services.kinesisanalytics.runtime.KinesisAnalyticsRuntime;
 
@@ -110,7 +109,7 @@ public class ProcessTaxiStream {
 				//cast Event to TripEvent
 				.map(event -> (TripEvent) event)
 				//remove all events with geo coordinates outside of NYC
-				.filter(GeoUtils::hasValidCoordinates);
+				.filter(TripEventValidator::isValidTrip);
 
 
 		DataStream<TripDocument> tripDocs = tripEvents

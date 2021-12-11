@@ -30,7 +30,7 @@ public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 			String geoHash = hash.toBase32();
 			String location = decfmt.format(hash.getPoint().getLatitude()) + "," + decfmt.format(hash.getPoint().getLatitude());
 
-			long tripDuration = Duration.ofMillis(Math.abs(te.dropoffTime() - te.pickupTime())).toSeconds();
+			long tripDuration = Duration.ofMillis(Math.abs(te.dropoffDatetime.getTime() - te.pickupDatetime.getTime())).toSeconds();
 			long tripDistance = distance(te.pickupLatitude, te.pickupLongitude, te.dropoffLatitude, te.dropoffLongitude);
 
 			String hotspot = "";

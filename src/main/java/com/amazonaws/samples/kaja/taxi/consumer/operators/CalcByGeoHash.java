@@ -45,6 +45,8 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 				}
 			}
 
+			// seconds => minutes
+//			doc.sumTripDuration /= 60;
 			doc.avgTripDuration = doc.sumTripDuration / count;
 			doc.avgTripDistance = doc.sumTripDistance / count;
 			doc.avgTripSpeed = sumTripSpeed / count;

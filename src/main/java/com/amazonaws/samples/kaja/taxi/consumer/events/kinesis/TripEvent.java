@@ -15,12 +15,9 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.events.kinesis;
 
-import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
-
+import java.util.Date;
 
 public class TripEvent extends Event {
-	public final static FastDateFormat FMT = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
-
 	private static final double[][] LocationId2GeoPoints = new double[][] {
 		{ 40.68965340678024, -74.17443021575268	  },
 		{ 40.61118429515941, -73.8723711891749	  },
@@ -298,26 +295,15 @@ public class TripEvent extends Event {
 	public double dropoffLongitude;
 	public int dropoffLocationId;
 	public long tripDistance;
-	public String pickupDatetime;
-	public String dropoffDatetime;
+	public Date pickupDatetime;
+	public Date dropoffDatetime;
 
 	public TripEvent() {
-		tripId = 0;
-		pickupLatitude = 0;
-		pickupLongitude = 0;
-		pickupLocationId = 0;
-		dropoffLatitude = 0;
-		dropoffLongitude = 0;
-		dropoffLocationId = 0;
-		tripDistance = 0;
-		pickupDatetime = "";
-		dropoffDatetime = "";
 	}
 
 	public void normalize() {
-		try {
-			timestamp = FMT.parse(dropoffDatetime).getTime();
-		} catch (Exception e) {
+		if (dropoffDatetime != null) {
+			timestamp = dropoffDatetime.getTime();
 		}
 		
 		if (pickupLocationId > 0 && pickupLocationId <= LocationId2GeoPoints.length) {
@@ -336,22 +322,6 @@ public class TripEvent extends Event {
 	@Override
 	public long getTimestamp() {
 		return timestamp;
-	}
-
-	public long pickupTime() {
-		try {
-			return FMT.parse(pickupDatetime).getTime();
-		} catch (Exception e) {
-			return 0;
-		}
-	}
-
-	public long dropoffTime() {
-		try {
-			return FMT.parse(dropoffDatetime).getTime();
-		} catch (Exception e) {
-			return 0;
-		}
 	}
 
 	@Override
