@@ -19,7 +19,7 @@ import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
 
 
 public class TripEvent extends Event {
-	private final static FastDateFormat FMT = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+	public final static FastDateFormat FMT = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
 	private static final double[][] LocationId2GeoPoints = new double[][] {
 		{ 40.68965340678024, -74.17443021575268	  },

@@ -25,6 +25,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kinesis.FlinkKinesisConsumer;
 import org.apache.flink.streaming.connectors.kinesis.config.AWSConfigConstants;
@@ -124,7 +125,7 @@ public class ProcessTaxiStream {
 					}
 				})
 				//collect all events in 5 minutes window
-				.timeWindow(Time.minutes(5))
+				.window(TumblingEventTimeWindows.of(Time.minutes(5)))
 				//count events per geo hash in the time window
 				.apply(new CalcByGeoHash());
 
