@@ -1,5 +1,6 @@
 package com.amazonaws.samples.kaja.taxi.consumer.operators;
 
+import java.time.Instant;
 import java.util.Iterator;
 
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
@@ -31,7 +32,7 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 			TripData data = Iterables.get(iterable, 0);
 			TripDocument doc = new TripDocument();
 
-			doc.timestamp = timeWindow.getEnd();
+			doc.timestamp = Instant.ofEpochMilli(timeWindow.getEnd());
 			doc.geohash = data.geohash;
 			WGS84Point gp = GeoHash.fromGeohashString(doc.geohash).getPoint();
 			doc.location = gp.getLatitude() + "," + gp.getLongitude();

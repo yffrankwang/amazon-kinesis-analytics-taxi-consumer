@@ -15,6 +15,8 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 
+import java.time.Instant;
+
 public class TripDocument extends Document {
 	public String taxiType;
 	public String location;
@@ -28,7 +30,7 @@ public class TripDocument extends Document {
 	public double avgTripSpeed;
 
 	public TripDocument() {
-		super(0);
+		super(Instant.EPOCH);
 
 		this.taxiType = "";
 		this.location = "";

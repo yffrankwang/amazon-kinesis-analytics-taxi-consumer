@@ -15,16 +15,36 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 
+import java.lang.reflect.Type;
+import java.time.Instant;
+import java.util.TimeZone;
+
+import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
+
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 public abstract class Document {
-	private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+	public final static FastDateFormat TIMESTAMP_FMT = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+	
+	private static final Gson gson = new GsonBuilder()
+		.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+		.registerTypeAdapter(Instant.class, new JsonSerializer<Instant>() {
+			@Override
+			public JsonElement serialize(Instant src, Type typeOfSrc, JsonSerializationContext context) {
+				return new JsonPrimitive(TIMESTAMP_FMT.format(src.toEpochMilli()));
+			}
+		})
+		.create();
 
-	public long timestamp;
+	public Instant timestamp;
 
-	protected Document(long timestamp) {
+	protected Document(Instant timestamp) {
 		this.timestamp = timestamp;
 	}
 
