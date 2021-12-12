@@ -329,7 +329,7 @@ Resources:
             curl -s https://raw.githubusercontent.com/yffrankwang/amazon-kinesis-analytics-taxi-consumer/${Release}/misc/kibana-dashboard.json | curl -s -w "\n" -XPOST https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/saved_objects/_bulk_create -H 'Content-Type: application/json' -H 'kbn-xsrf: true' -d @-
 
             # set default Kibana index pattern
-            curl -s -w "\n" -XPOST 'https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/kibana/settings' -H 'content-type: application/json' -H 'kbn-xsrf: true' --data '{"changes":{"defaultIndex":"trip-duration-index-pattern"}}'
+            curl -s -w "\n" -XPOST 'https://${ElasticsearchService.DomainEndpoint}/_plugin/kibana/api/kibana/settings' -H 'content-type: application/json' -H 'kbn-xsrf: true' --data '{"changes":{"defaultIndex":"trip-index-pattern"}}'
             
             # start the Flink application
             aws --region ${AWS::Region} kinesisanalyticsv2 start-application --application-name ${KinesisAnalyticsFlinkApplication} --run-configuration '{ "ApplicationRestoreConfiguration": { "ApplicationRestoreType": "RESTORE_FROM_LATEST_SNAPSHOT" } }'
