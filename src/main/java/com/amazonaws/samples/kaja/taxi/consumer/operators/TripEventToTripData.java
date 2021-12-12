@@ -1,6 +1,5 @@
 package com.amazonaws.samples.kaja.taxi.consumer.operators;
 
-import java.text.DecimalFormat;
 import java.time.Duration;
 
 import org.apache.flink.api.common.functions.MapFunction;
@@ -16,7 +15,7 @@ import ch.hsr.geohash.GeoHash;
 public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 	private static final long serialVersionUID = 1L;
 	
-	private static final DecimalFormat decfmt = new DecimalFormat("#.000000");
+	//private static final DecimalFormat decfmt = new DecimalFormat("#.000000");
 
 	private static final Logger LOG = LoggerFactory.getLogger(TripEventToTripData.class);
 
@@ -28,7 +27,7 @@ public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 			GeoHash hash = GeoHash.withCharacterPrecision(te.pickupLatitude, te.pickupLongitude, 6);
 
 			String geoHash = hash.toBase32();
-			String location = decfmt.format(hash.getPoint().getLatitude()) + "," + decfmt.format(hash.getPoint().getLatitude());
+			String location = te.pickupLatitude + "," + te.pickupLongitude;
 
 			long tripDuration = Duration.ofMillis(Math.abs(te.dropoffDatetime.getTime() - te.pickupDatetime.getTime())).toSeconds();
 			long tripDistance = distance(te.pickupLatitude, te.pickupLongitude, te.dropoffLatitude, te.dropoffLongitude);

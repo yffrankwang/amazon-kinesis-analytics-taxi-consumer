@@ -12,6 +12,9 @@ import com.amazonaws.samples.kaja.taxi.consumer.events.es.TripDocument;
 import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripData;
 import com.google.common.collect.Iterables;
 
+import ch.hsr.geohash.GeoHash;
+import ch.hsr.geohash.WGS84Point;
+
 public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, String, TimeWindow> {
 	private static final long serialVersionUID = 1;
 
@@ -30,7 +33,8 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 
 			doc.timestamp = timeWindow.getEnd();
 			doc.geohash = data.geohash;
-			doc.location = data.location;
+			WGS84Point gp = GeoHash.fromGeohashString(doc.geohash).getPoint();
+			doc.location = gp.getLatitude() + "," + gp.getLongitude();
 			doc.hotspot = data.hotspot;
 
 			double sumTripSpeed = 0;
