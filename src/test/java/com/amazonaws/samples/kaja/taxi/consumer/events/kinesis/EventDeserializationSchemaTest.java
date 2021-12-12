@@ -16,11 +16,15 @@ public class EventDeserializationSchemaTest {
 			return;
 		}
 		
+		System.out.println("-------------------------------------------------------------------");
+		System.out.println(fin);
+		System.out.println("-------------------------------------------------------------------");
+
 		EventDeserializationSchema edss = new EventDeserializationSchema();
 
 		BufferedReader br = new BufferedReader(new FileReader(fin));
 
-		int errgeo = 0;
+		int invalid = 0;
 		int lineno = 0;
 		String line;
 		while ((line = br.readLine()) != null) {
@@ -32,20 +36,31 @@ public class EventDeserializationSchemaTest {
 			}
 
 			TripEvent te = (TripEvent)evt;
+			if (!TripEventValidator.hasValidDatetime(te)) {
+				if (invalid % 10000 == 0) {
+					System.out.println(lineno + " - error time: " + line);
+				}
+				invalid++;
+				continue;
+			}
+
 			if (!GeoUtils.hasValidCoordinates(te)) {
-				if (errgeo % 10000 == 0) {
+				if (invalid % 10000 == 0) {
 					System.out.println(lineno + " - error geo: " + line);
 				}
-				errgeo++;
+				invalid++;
+				continue;
 			}
 		}
 		
-		System.out.println("geo error " + errgeo + " / " + lineno);
+		br.close();
+		System.out.println("invalid record " + invalid + " / " + lineno);
 	}
 	
 	@Test
 	public void testDeserializeGreen() throws Exception {
 		deserialize("D:\\Develop\\Projects\\aws\\tlc\\data\\green_tripdata_2018-01.csv.json");
+		deserialize("D:\\Develop\\Projects\\aws\\tlc\\data\\green_tripdata_2014-01.csv.json");
 	}
 	
 	@Test

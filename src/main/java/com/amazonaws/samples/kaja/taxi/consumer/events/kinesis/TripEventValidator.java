@@ -19,7 +19,7 @@ import com.amazonaws.samples.kaja.taxi.consumer.utils.GeoUtils;
 
 
 public class TripEventValidator {
-	public static boolean isValidTrip(TripEvent te) {
+	public static boolean hasValidDatetime(TripEvent te) {
 		if (te.dropoffDatetime == null || te.pickupDatetime == null) {
 			return false;
 		}
@@ -27,10 +27,18 @@ public class TripEventValidator {
 		if (te.dropoffDatetime.getTime() < te.pickupDatetime.getTime()) {
 			return false;
 		}
-		
+
 //		if (te.dropoffDatetime.getTime() - te.pickupDatetime.getTime() > 12 * 60 * 60 * 1000) {
-//			return false;
-//		}
+//		return false;
+//	}
+	
+		return true;
+	}
+	
+	public static boolean isValidTrip(TripEvent te) {
+		if (!hasValidDatetime(te)) {
+			return false;
+		}
 		
 		if (!GeoUtils.hasValidCoordinates(te)) {
 			return false;
