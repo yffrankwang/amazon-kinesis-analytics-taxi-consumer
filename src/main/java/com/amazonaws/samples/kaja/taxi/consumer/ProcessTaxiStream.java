@@ -123,8 +123,8 @@ public class ProcessTaxiStream {
 						return td.taxiType + ":" + td.geohash;
 					}
 				})
-				//collect all events in 5 minutes window
-				.window(TumblingEventTimeWindows.of(Time.minutes(5)))
+				//collect all events in 1 hour time window
+				.window(TumblingEventTimeWindows.of(Time.hours(1)))
 				//count events per geo hash in the time window
 				.apply(new CalcByGeoHash());
 
