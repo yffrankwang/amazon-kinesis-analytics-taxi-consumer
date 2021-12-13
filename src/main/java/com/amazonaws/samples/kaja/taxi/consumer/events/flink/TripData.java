@@ -16,15 +16,13 @@
 package com.amazonaws.samples.kaja.taxi.consumer.events.flink;
 
 public class TripData {
-	public final String taxiType;
 	public final String location;
 	public final String geohash;
 	public final String hotspot;
 	public final long tripDuration;
 	public final long tripDistance;
 
-	public TripData(String taxiType, String location, String geohash, String hotspot, long tripDuration, long tripDistance) {
-		this.taxiType = taxiType;
+	public TripData(String location, String geohash, String hotspot, long tripDuration, long tripDistance) {
 		this.location = location;
 		this.geohash = geohash;
 		this.hotspot = hotspot;

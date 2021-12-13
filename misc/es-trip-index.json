@@ -31,9 +31,6 @@
 				},
 				"hotspot": {
 					"type": "keyword"
-				},
-				"taxi_type": {
-					"type": "keyword"
 				}
 			}
 		}

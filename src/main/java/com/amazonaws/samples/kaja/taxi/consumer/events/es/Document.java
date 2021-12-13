@@ -17,7 +17,6 @@ package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
-import java.util.TimeZone;
 
 import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
 

@@ -287,7 +287,6 @@ public class TripEvent extends Event {
 	public long tripId;
 	private long timestamp;
 
-	public String taxiType;
 	public double pickupLatitude;
 	public double pickupLongitude;
 	public int pickupLocationId;
@@ -328,7 +327,6 @@ public class TripEvent extends Event {
 	public String toString() {
 		return "TripEvent{" +
 				"tripId=" + tripId +
-				", taxiType=" + taxiType +
 				", pickupDatetime=" + pickupDatetime +
 				", pickupLatitude=" + pickupLatitude +
 				", pickupLongitude=" + pickupLongitude +

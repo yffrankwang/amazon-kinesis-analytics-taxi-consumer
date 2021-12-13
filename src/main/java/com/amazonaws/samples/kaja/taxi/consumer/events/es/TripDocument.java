@@ -18,7 +18,6 @@ package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 import java.time.Instant;
 
 public class TripDocument extends Document {
-	public String taxiType;
 	public String location;
 	public String geohash;
 	public String hotspot;
@@ -32,7 +31,6 @@ public class TripDocument extends Document {
 	public TripDocument() {
 		super(Instant.EPOCH);
 
-		this.taxiType = "";
 		this.location = "";
 		this.geohash = "";
 		this.hotspot = "";

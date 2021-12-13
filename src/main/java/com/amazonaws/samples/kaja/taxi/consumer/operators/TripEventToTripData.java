@@ -39,7 +39,7 @@ public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 				hotspot = "LGA";
 			}
 
-			return new TripData(te.taxiType, location, geoHash, hotspot, tripDuration, tripDistance);
+			return new TripData(location, geoHash, hotspot, tripDuration, tripDistance);
 		} catch (Throwable e) {
 			LOG.error("map TripEvent failed", e);
 			return null;
