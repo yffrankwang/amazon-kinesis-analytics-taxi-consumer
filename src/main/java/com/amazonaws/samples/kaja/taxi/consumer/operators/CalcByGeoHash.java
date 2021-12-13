@@ -59,7 +59,7 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 
 			collector.collect(doc);
 			
-			LOG.info("CalcByGeoHash collect {}: {}", count, doc.toString());
+			LOG.debug("CalcByGeoHash collect {}: {}", count, doc.toString());
 		} catch (Exception e) {
 			LOG.error("CalcByGeoHash failed", e);
 		}

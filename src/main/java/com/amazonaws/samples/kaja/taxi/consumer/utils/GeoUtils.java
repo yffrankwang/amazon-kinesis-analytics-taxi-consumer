@@ -36,10 +36,10 @@ public class GeoUtils {
 			WGS84Point dropoff = new WGS84Point(trip.dropoffLatitude, trip.dropoffLongitude);
 
 			if (NYC.contains(pickup) && NYC.contains(dropoff)) {
-				LOG.info("Accept NYC location for event {}", trip);
+				LOG.debug("Accept NYC location for event {}", trip);
 				return true;
 			}
-			LOG.info("Discard non NYC location for event {}", trip);
+			LOG.debug("Discard non NYC location for event {}", trip);
 		} catch (IllegalArgumentException e) {
 			LOG.warn("cannot parse coordinates for event {}", trip, e);
 		}

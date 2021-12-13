@@ -22,7 +22,7 @@ public class TripEventToTripData implements MapFunction<TripEvent, TripData> {
 	@Override
 	public TripData map(TripEvent te) {
 		try {
-			LOG.info("map TripEvent {}", te);
+			LOG.debug("map TripEvent {}", te);
 
 			GeoHash hash = GeoHash.withCharacterPrecision(te.pickupLatitude, te.pickupLongitude, 6);
 
