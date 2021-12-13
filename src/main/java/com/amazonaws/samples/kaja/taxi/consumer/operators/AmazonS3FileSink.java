@@ -15,20 +15,46 @@
 
 package com.amazonaws.samples.kaja.taxi.consumer.operators;
 
-import org.apache.flink.api.common.serialization.SimpleStringEncoder;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.flink.api.common.serialization.Encoder;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
+import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
+
+import com.amazonaws.samples.kaja.taxi.consumer.events.es.TripDocument;
 
 public class AmazonS3FileSink {
-	public static <T> StreamingFileSink<T> buildS3FileSink(String s3SinkPath) {
-		final StreamingFileSink<T> sink = StreamingFileSink
-			.forRowFormat(new Path(s3SinkPath), new SimpleStringEncoder<T>("UTF-8"))
-			.withBucketAssigner(new DateTimeBucketAssigner<T>("yyyyMMdd-HHmm"))
+	public final static FastDateFormat TIMESTAMP_FMT = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
+
+	public static StreamingFileSink<TripDocument> buildS3FileSink(String s3SinkPath) {
+		final StreamingFileSink<TripDocument> sink = StreamingFileSink
+			.forRowFormat(new Path(s3SinkPath), new TripDocumentToCsvEncoder())
+			.withBucketAssigner(new DateTimeBucketAssigner<TripDocument>("yyyyMMdd-HH"))
 			.withRollingPolicy(DefaultRollingPolicy.builder().build())
 			.build();
 
 		return sink;
+	}
+
+	// format for forecast
+	public static class TripDocumentToCsvEncoder implements Encoder<TripDocument> {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void encode(TripDocument td, OutputStream stream) throws IOException {
+			stream.write(TIMESTAMP_FMT.format(td.timestamp).getBytes());
+			stream.write(',');
+			stream.write(td.geohash.getBytes());
+			stream.write(',');
+			stream.write(String.valueOf(td.pickupCount).getBytes());
+			stream.write(',');
+			stream.write(StringUtils.replaceChars(td.location, ',', '_').getBytes());
+			stream.write('\n');
+		}
 	}
 }

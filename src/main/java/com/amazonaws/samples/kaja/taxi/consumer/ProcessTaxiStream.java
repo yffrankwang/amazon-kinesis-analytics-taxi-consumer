@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
@@ -37,7 +36,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.samples.kaja.taxi.consumer.events.EventDeserializationSchema;
 import com.amazonaws.samples.kaja.taxi.consumer.events.TimestampAssigner;
 import com.amazonaws.samples.kaja.taxi.consumer.events.es.TripDocument;
-import com.amazonaws.samples.kaja.taxi.consumer.events.flink.TripData;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.Event;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEvent;
 import com.amazonaws.samples.kaja.taxi.consumer.events.kinesis.TripEventValidator;
@@ -115,14 +113,7 @@ public class ProcessTaxiStream {
 		DataStream<TripDocument> tripDocs = tripEvents
 				//compute geo hash for every event
 				.map(new TripEventToTripData())
-				.keyBy(new KeySelector<TripData, String>() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public String getKey(TripData td) throws Exception {
-						return td.taxiType + ":" + td.geohash;
-					}
-				})
+				.keyBy(item -> item.geohash)
 				//collect all events in 10 minutes time window
 				.window(TumblingEventTimeWindows.of(Time.minutes(10)))
 				//count events per geo hash in the time window
