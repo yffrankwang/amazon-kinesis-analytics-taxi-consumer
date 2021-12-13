@@ -18,7 +18,7 @@ package com.amazonaws.samples.kaja.taxi.consumer.events.es;
 import java.lang.reflect.Type;
 import java.time.Instant;
 
-import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;

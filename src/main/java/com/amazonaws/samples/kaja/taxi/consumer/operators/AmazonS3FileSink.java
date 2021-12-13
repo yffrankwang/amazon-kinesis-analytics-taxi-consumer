@@ -19,12 +19,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.api.common.serialization.Encoder;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
-import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
 
 import com.amazonaws.samples.kaja.taxi.consumer.events.es.TripDocument;
 
@@ -47,7 +47,7 @@ public class AmazonS3FileSink {
 
 		@Override
 		public void encode(TripDocument td, OutputStream stream) throws IOException {
-			stream.write(TIMESTAMP_FMT.format(td.timestamp).getBytes());
+			stream.write(TIMESTAMP_FMT.format(td.timestamp.toEpochMilli()).getBytes());
 			stream.write(',');
 			stream.write(td.geohash.getBytes());
 			stream.write(',');

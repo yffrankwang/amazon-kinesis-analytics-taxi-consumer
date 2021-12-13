@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.Date;
 
-import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
