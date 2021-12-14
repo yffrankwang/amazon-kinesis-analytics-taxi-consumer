@@ -1,5 +1,6 @@
 package com.amazonaws.samples.kaja.taxi.consumer.operators;
 
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.Iterator;
 
@@ -19,6 +20,7 @@ import ch.hsr.geohash.WGS84Point;
 public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, String, TimeWindow> {
 	private static final long serialVersionUID = 1;
 
+	private static final DecimalFormat GEOFMT = new DecimalFormat("#.0000000000");
 	private static final Logger LOG = LoggerFactory.getLogger(CalcByGeoHash.class);
 
 	@Override
@@ -35,7 +37,7 @@ public class CalcByGeoHash implements WindowFunction<TripData, TripDocument, Str
 			doc.timestamp = Instant.ofEpochMilli(timeWindow.getEnd());
 			doc.geohash = data.geohash;
 			WGS84Point gp = GeoHash.fromGeohashString(doc.geohash).getPoint();
-			doc.location = gp.getLatitude() + "," + gp.getLongitude();
+			doc.location = GEOFMT.format(gp.getLatitude()) + "," + GEOFMT.format(gp.getLongitude());
 			doc.hotspot = data.hotspot;
 
 			double sumTripSpeed = 0;
