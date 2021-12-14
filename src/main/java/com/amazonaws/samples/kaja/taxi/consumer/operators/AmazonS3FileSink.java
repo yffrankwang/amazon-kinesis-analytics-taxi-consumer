@@ -34,7 +34,7 @@ public class AmazonS3FileSink {
 	public static StreamingFileSink<TripDocument> buildS3FileSink(String s3SinkPath) {
 		final StreamingFileSink<TripDocument> sink = StreamingFileSink
 			.forRowFormat(new Path(s3SinkPath), new TripDocumentToCsvEncoder())
-			.withBucketAssigner(new DateTimeBucketAssigner<TripDocument>("yyyyMMdd-HH"))
+			.withBucketAssigner(new DateTimeBucketAssigner<TripDocument>("yyyyMMdd"))
 			.withRollingPolicy(DefaultRollingPolicy.builder().build())
 			.build();
 
