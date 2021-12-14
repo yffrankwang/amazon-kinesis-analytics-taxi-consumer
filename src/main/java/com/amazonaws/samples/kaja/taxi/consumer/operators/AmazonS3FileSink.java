@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.flink.api.common.serialization.Encoder;
 import org.apache.flink.core.fs.Path;
+import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.bucketassigners.DateTimeBucketAssigner;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
@@ -36,6 +37,7 @@ public class AmazonS3FileSink {
 			.forRowFormat(new Path(s3SinkPath), new TripDocumentToCsvEncoder())
 			.withBucketAssigner(new DateTimeBucketAssigner<TripDocument>("yyyyMMdd"))
 			.withRollingPolicy(DefaultRollingPolicy.builder().build())
+			.withOutputFileConfig(OutputFileConfig.builder().withPartSuffix(".csv").build())
 			.build();
 
 		return sink;
