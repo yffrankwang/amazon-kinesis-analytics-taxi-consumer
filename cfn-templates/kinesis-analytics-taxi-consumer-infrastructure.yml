@@ -450,6 +450,8 @@ Resources:
                       "Resource": [
                         "arn:aws:s3:::${FlinkApplicationS3Bucket}",
                         "arn:aws:s3:::${FlinkApplicationS3Bucket}/*",
+                        "arn:aws:s3:::nyc-tlc",
+                        "arn:aws:s3:::nyc-tlc/*"
                         "arn:aws:s3:::yfw-useast1",
                         "arn:aws:s3:::yfw-useast1/*"
                       ]
